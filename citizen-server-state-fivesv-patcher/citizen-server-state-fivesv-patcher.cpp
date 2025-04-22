@@ -5,8 +5,8 @@
 #include <cstring>
 #include <limits>
 
-//BF 32 00 00 00 80 7D 00 00 0F 84 2C 01 00 00 48 -> mov     edi, 32h    -> syncDelay = 50ms                Default sync delay
-//00 20 99 44 56 EE B4 44 00 80 D4 44 00 A8 F6 45 -> 00 20 99 44         -> 1225.0f (35f * 35f)             the lowest sync delay distance constant
+//BF 32 00 00 00 80 7D 00 00 0F 84 2C 01 00 00 48 -> mov     edi, 32h    -> syncDelay = 50ms                 default sync delay
+//00 20 99 44 56 EE B4 44 00 80 D4 44 00 A8 F6 45 -> 00 20 99 44         -> 1225.0f (35f * 35f)              the lowest sync delay distance constant
 //48 C1 EF 02 E9 9C 00 00 00 45 84 F6 0F 84 93 00 -> shr     rdi, 2      -> syncDelay /= 4;                  syncDelay in first if playerEntity (probably unused)
 //B8 0C 00 00 00 48 0F 42 F8 49 8B 1C 24 44 0F B7 -> mov     eax, 0Ch    -> syncDelay /= 4 = 12 (0xC)        syncDelay in second if playerEntity -> compiler decided to not shift right here but instead directly initialize to the rounded result of 50 / 4 even if it's the same operation Note: rdi is later initialized with value of 32bit register eax
 
