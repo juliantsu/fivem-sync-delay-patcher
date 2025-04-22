@@ -30,6 +30,7 @@ This tool is particularly useful for:
 
 This patcher modifies the compiled code implementing the sync delay logic from FiveM's server code:
 
+See (https://github.com/citizenfx/fivem/blob/5042a3d4a57ac0924828b9a6fa13d62ab2ad3f34/code/components/citizen-server-impl/src/state/ServerGameState.cpp#L1267)
 ```cpp
 // Source: https://github.com/citizenfx/fivem/blob/5042a3d4a57ac0924828b9a6fa13d62ab2ad3f34/code/components/citizen-server-impl/src/state/ServerGameState.cpp#L1267
 auto syncDelay = 50ms; // <-- This is the default value we're patching
