@@ -163,12 +163,6 @@ int main()
 	std::cout << "Enter new syncDelay value (default: 50): ";
 	std::cin >> syncDelay;
 
-	if (syncDelay <= 0 || syncDelay > 255)
-	{
-		std::cerr << "Error: syncDelay must be between 1 and 255" << '\n';
-		return 1;
-	}
-
 	std::cout << "Enter sync delay divisor (must be a power of 2, default: 4): ";
 	std::cin >> syncDivider;
 
@@ -222,7 +216,13 @@ int main()
 		std::cout << "Found " << matches3.size() << " matches for pattern 3 (mov eax, 0Ch)" << '\n';
 		std::cout << "Found " << matches4.size() << " matches for pattern 4 (1225.0f constant)" << '\n';
 
-		std::vector<uint8_t> newPattern1 = {0xBF, static_cast<uint8_t>(syncDelay), 0x00, 0x00, 0x00};
+		std::vector<uint8_t> newPattern1 = {
+			0xBF,
+			static_cast<uint8_t>(syncDelay & 0xFF),
+			static_cast<uint8_t>((syncDelay >> 8) & 0xFF),
+			static_cast<uint8_t>((syncDelay >> 16) & 0xFF),
+			static_cast<uint8_t>((syncDelay >> 24) & 0xFF)
+		};
 		// mov edi, new_value
 		std::vector<uint8_t> newPattern2 = {0x48, 0xC1, 0xEF, static_cast<uint8_t>(shiftAmount)};
 		// shr rdi, new_shift_amount
