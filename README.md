@@ -1,5 +1,7 @@
 # FiveM Sync Delay Patcher
 
+This tool references citizenfx/fivem#1521 for context.
+
 This utility allows FiveM server owners to modify the sync delay values in the `citizen-server-state-fivesv.dll` file, giving you control over how quickly entities (especially players) are synchronized across the network.
 
 ## Purpose
@@ -54,3 +56,4 @@ if (dist < 35.0f * 35.0f) // <-- This distance threshold (1225.0f) can also be m
 - Always backup your original DLL file before patching
 - Values should be balanced according to your server's performance capabilities
 - This tool modifies compiled code, use at your own risk
+- Following the rejection of citizenfx/fivem#1521, this tool was created to implement the functionality by directly patching the compiled binary.
