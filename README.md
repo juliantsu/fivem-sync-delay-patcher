@@ -28,6 +28,19 @@ This tool is particularly useful for:
 - Competitive PvP environments
 - Any server where reducing network latency improves gameplay
 
+## Proof of concept
+With this tool, you can also counteract certain movement glitches - such as the speedboosting shown below - or other sync related issues
+
+High sync delay (50ms):
+
+https://github.com/user-attachments/assets/891a38c0-3971-4922-af4b-8579ee26ce83
+
+Really low sync delay (0ms) - not recommended for larger servers
+
+https://github.com/user-attachments/assets/5128622d-a25f-4cbf-ad89-918b9de65d9a
+
+
+
 ## Technical Details
 
 This patcher modifies the compiled code implementing the sync delay logic from FiveM's server code:
