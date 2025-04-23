@@ -40,6 +40,7 @@ int pow_of_two_to_shift_amount_fast(int divisor)
 std::vector<uint8_t> read_dll_file(const std::string& filepath)
 {
 	std::ifstream file(filepath, std::ios::binary);
+	const std::string backupFilepath = filepath + "_backup";
 	if (!file)
 	{
 		throw std::runtime_error("Could not open file: " + filepath);
@@ -55,6 +56,19 @@ std::vector<uint8_t> read_dll_file(const std::string& filepath)
 	if (!file)
 	{
 		throw std::runtime_error("Error reading file: " + filepath);
+	}
+
+	// create backup of the original dll
+	std::ofstream backupFile(backupFilepath, std::ios::binary);
+	if (!backupFile)
+	{
+		throw std::runtime_error("Could not create backup file: " + backupFilepath);
+	}
+
+	backupFile.write(reinterpret_cast<const char*>(buffer.data()), static_cast<long long>(fileSize));
+	if (!backupFile)
+	{
+		throw std::runtime_error("Error writing to backup file: " + backupFilepath);
 	}
 
 	return buffer;
@@ -225,9 +239,9 @@ int main()
 
 		if (!matches1.empty())
 		{
-			for (const auto& match : matches1)
+			for (const auto& [offset, bytes] : matches1)
 			{
-				if (!patch_file(dllPath, match.offset, newPattern1))
+				if (!patch_file(dllPath, offset, newPattern1))
 				{
 					success = false;
 				}
@@ -235,7 +249,7 @@ int main()
 				{
 					std::cout << "Patched mov edi, 32h -> mov edi, "
 						<< std::hex << syncDelay
-						<< "h at offset 0x" << std::hex << match.offset << std::dec << '\n';
+						<< "h at offset 0x" << std::hex << offset << std::dec << '\n';
 				}
 			}
 		}
@@ -246,9 +260,9 @@ int main()
 
 		if (!matches2.empty())
 		{
-			for (const auto& match : matches2)
+			for (const auto& [offset, bytes] : matches2)
 			{
-				if (!patch_file(dllPath, match.offset, newPattern2))
+				if (!patch_file(dllPath, offset, newPattern2))
 				{
 					success = false;
 				}
@@ -256,7 +270,7 @@ int main()
 				{
 					std::cout << "Patched shr rdi, 2 -> shr rdi, "
 						<< std::dec << shiftAmount
-						<< " at offset 0x" << std::hex << match.offset << std::dec << '\n';
+						<< " at offset 0x" << std::hex << offset << std::dec << '\n';
 				}
 			}
 		}
@@ -288,9 +302,9 @@ int main()
 
 		if (patchLowestSyncDelayDistance && !matches4.empty())
 		{
-			for (const auto& match : matches4)
+			for (const auto& [offset, bytes] : matches4)
 			{
-				if (!patch_file(dllPath, match.offset, newPattern4))
+				if (!patch_file(dllPath, offset, newPattern4))
 				{
 					success = false;
 				}
@@ -298,7 +312,7 @@ int main()
 				{
 					std::cout << "Patched lowest sync delay distance constant: 1225 -> "
 						<< lowestSyncDelayDistance
-						<< " at offset 0x" << std::hex << match.offset << std::dec << '\n';
+						<< " at offset 0x" << std::hex << offset << std::dec << '\n';
 					std::cout << "  Raw bytes: ";
 					for (auto byte : newPattern4)
 					{
