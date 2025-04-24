@@ -154,8 +154,8 @@ float bytes_to_float(const std::vector<uint8_t>& bytes)
 int main()
 {
 	std::string dllPath{};
-	int syncDelay{50};
-	int syncDivider{4};
+	uint32_t syncDelay{50};
+	uint8_t syncDivisor{4};
 
 	std::cout << "Enter DLL path: ";
 	std::getline(std::cin, dllPath);
@@ -164,20 +164,25 @@ int main()
 	std::cin >> syncDelay;
 
 	std::cout << "Enter sync delay divisor (must be a power of 2, default: 4): ";
-	std::cin >> syncDivider;
+	std::cin >> syncDivisor;
 
 	try
 	{
 		bool patchLowestSyncDelayDistance{false};
 		float lowestSyncDelayDistance{1225.0f};
-		if (!is_pow_of_two(syncDivider))
+		if (!is_pow_of_two(syncDivisor))
+        {
+            std::cerr << "Error: divisor must be a power of two" << '\n';
+            return 1;
+        }
+        else if (syncDivisor > 255 || syncDivisor < 1)
 		{
-			std::cerr << "Error: divisor must be a power of two" << '\n';
+			std::cerr << "Error: divisor can't be bigger than 1 byte" << '\n';
 			return 1;
 		}
 
-		int shiftAmount = pow_of_two_to_shift_amount_fast(syncDivider);
-		int dividedValue = syncDelay / syncDivider;
+		int shiftAmount = pow_of_two_to_shift_amount_fast(syncDivisor);
+		int dividedValue = syncDelay / syncDivisor;
 
 		std::cin.ignore(std::numeric_limits<std::streamsize>::max(), '\n');
 		std::cout << "Do you want to patch the lowest sync delay distance constant? (y/n): ";
@@ -216,7 +221,7 @@ int main()
 		std::cout << "Found " << matches3.size() << " matches for pattern 3 (mov eax, 0Ch)" << '\n';
 		std::cout << "Found " << matches4.size() << " matches for pattern 4 (1225.0f constant)" << '\n';
 
-		std::vector<uint8_t> newPattern1 = {
+		std::vector<uint8_t> newPattern1 = { // support 4 byte value
 			0xBF,
 			static_cast<uint8_t>(syncDelay & 0xFF),
 			static_cast<uint8_t>((syncDelay >> 8) & 0xFF),
@@ -226,7 +231,13 @@ int main()
 		// mov edi, new_value
 		std::vector<uint8_t> newPattern2 = {0x48, 0xC1, 0xEF, static_cast<uint8_t>(shiftAmount)};
 		// shr rdi, new_shift_amount
-		std::vector<uint8_t> newPattern3 = {0xB8, static_cast<uint8_t>(dividedValue), 0x00, 0x00, 0x00};
+		std::vector<uint8_t> newPattern3 = { // support 4 byte value
+            0xB8,
+            static_cast<uint8_t>(dividedValue & 0xFF),
+            static_cast<uint8_t>((dividedValue >> 8) & 0xFF),
+            static_cast<uint8_t>((dividedValue >> 16) & 0xFF),
+            static_cast<uint8_t>((dividedValue >> 24) & 0xFF)
+        };
 		// mov eax, new_divided_value
 
 		std::vector<uint8_t> newPattern4;
